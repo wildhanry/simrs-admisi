@@ -1,0 +1,174 @@
+@extends('layouts.app')
+
+@section('title', 'Tambah Pasien Baru')
+
+@section('content')
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Tambah Pasien Baru</h2>
+        <p class="text-sm text-gray-600">Isi informasi pasien di bawah ini</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <form action="{{ route('patients.store') }}" method="POST">
+            @csrf
+
+            <!-- Medical Record Number (Auto-generated, readonly) -->
+            <div class="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <div>
+                        <p class="text-sm font-medium text-blue-900">Nomor Rekam Medis (Otomatis)</p>
+                        <p class="text-lg font-mono font-bold text-blue-900">{{ $mrn }}</p>
+                    </div>
+                </div>
+                <input type="hidden" name="medical_record_number" value="{{ $mrn }}">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- NIK -->
+                <div class="md:col-span-2">
+                    <label for="nik" class="block text-sm font-medium text-gray-700 mb-2">NIK (Nomor Induk Kependudukan) *</label>
+                    <input type="text" name="nik" id="nik" value="{{ old('nik') }}" required maxlength="16" pattern="[0-9]{16}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('nik') border-red-500 @enderror">
+                    <p class="mt-1 text-xs text-gray-500">16 digit</p>
+                    @error('nik')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Name -->
+                <div class="md:col-span-2">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap *</label>
+                    <input type="text" name="name" id="name" value="{{ old('name') }}" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('name') border-red-500 @enderror">
+                    @error('name')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Birth Place -->
+                <div>
+                    <label for="birth_place" class="block text-sm font-medium text-gray-700 mb-2">Tempat Lahir</label>
+                    <input type="text" name="birth_place" id="birth_place" value="{{ old('birth_place') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('birth_place') border-red-500 @enderror">
+                    @error('birth_place')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Birth Date -->
+                <div>
+                    <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Lahir *</label>
+                    <input type="date" name="birth_date" id="birth_date" value="{{ old('birth_date') }}" required max="{{ date('Y-m-d') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('birth_date') border-red-500 @enderror">
+                    @error('birth_date')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Gender -->
+                <div>
+                    <label for="gender" class="block text-sm font-medium text-gray-700 mb-2">Jenis Kelamin *</label>
+                    <select name="gender" id="gender" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('gender') border-red-500 @enderror">
+                        <option value="">Pilih Jenis Kelamin</option>
+                        <option value="male" {{ old('gender') === 'male' ? 'selected' : '' }}>Laki-laki</option>
+                        <option value="female" {{ old('gender') === 'female' ? 'selected' : '' }}>Perempuan</option>
+                    </select>
+                    @error('gender')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Blood Type -->
+                <div>
+                    <label for="blood_type" class="block text-sm font-medium text-gray-700 mb-2">Golongan Darah</label>
+                    <select name="blood_type" id="blood_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('blood_type') border-red-500 @enderror">
+                        <option value="">Tidak Diketahui</option>
+                        <option value="A" {{ old('blood_type') === 'A' ? 'selected' : '' }}>A</option>
+                        <option value="B" {{ old('blood_type') === 'B' ? 'selected' : '' }}>B</option>
+                        <option value="AB" {{ old('blood_type') === 'AB' ? 'selected' : '' }}>AB</option>
+                        <option value="O" {{ old('blood_type') === 'O' ? 'selected' : '' }}>O</option>
+                    </select>
+                    @error('blood_type')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Phone -->
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon *</label>
+                    <input type="tel" name="phone" id="phone" value="{{ old('phone') }}" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('phone') border-red-500 @enderror">
+                    @error('phone')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Marital Status -->
+                <div>
+                    <label for="marital_status" class="block text-sm font-medium text-gray-700 mb-2">Status Pernikahan</label>
+                    <select name="marital_status" id="marital_status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('marital_status') border-red-500 @enderror">
+                        <option value="">Pilih Status</option>
+                        <option value="single" {{ old('marital_status') === 'single' ? 'selected' : '' }}>Belum Menikah</option>
+                        <option value="married" {{ old('marital_status') === 'married' ? 'selected' : '' }}>Menikah</option>
+                        <option value="divorced" {{ old('marital_status') === 'divorced' ? 'selected' : '' }}>Cerai</option>
+                        <option value="widowed" {{ old('marital_status') === 'widowed' ? 'selected' : '' }}>Janda/Duda</option>
+                    </select>
+                    @error('marital_status')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Religion -->
+                <div>
+                    <label for="religion" class="block text-sm font-medium text-gray-700 mb-2">Agama</label>
+                    <input type="text" name="religion" id="religion" value="{{ old('religion') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('religion') border-red-500 @enderror">
+                    @error('religion')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Occupation -->
+                <div>
+                    <label for="occupation" class="block text-sm font-medium text-gray-700 mb-2">Pekerjaan</label>
+                    <input type="text" name="occupation" id="occupation" value="{{ old('occupation') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('occupation') border-red-500 @enderror">
+                    @error('occupation')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Address -->
+                <div class="md:col-span-2">
+                    <label for="address" class="block text-sm font-medium text-gray-700 mb-2">Alamat *</label>
+                    <textarea name="address" id="address" rows="3" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('address') border-red-500 @enderror">{{ old('address') }}</textarea>
+                    @error('address')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Emergency Contact Name -->
+                <div>
+                    <label for="emergency_contact_name" class="block text-sm font-medium text-gray-700 mb-2">Nama Kontak Darurat</label>
+                    <input type="text" name="emergency_contact_name" id="emergency_contact_name" value="{{ old('emergency_contact_name') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('emergency_contact_name') border-red-500 @enderror">
+                    @error('emergency_contact_name')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Emergency Contact Phone -->
+                <div>
+                    <label for="emergency_contact_phone" class="block text-sm font-medium text-gray-700 mb-2">Telepon Kontak Darurat</label>
+                    <input type="tel" name="emergency_contact_phone" id="emergency_contact_phone" value="{{ old('emergency_contact_phone') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('emergency_contact_phone') border-red-500 @enderror">
+                    @error('emergency_contact_phone')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="mt-8 flex justify-end space-x-3">
+                <a href="{{ route('patients.index') }}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Batal</a>
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Simpan Pasien</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endsection
