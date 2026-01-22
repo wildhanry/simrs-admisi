@@ -2,14 +2,18 @@
 
 echo "🚀 Starting SIMRS Admisi Docker Container..."
 
-# Wait for database to be ready
-echo "⏳ Waiting for database connection..."
-until php artisan db:show > /dev/null 2>&1; do
-    echo "Database is unavailable - sleeping"
-    sleep 2
-done
-
-echo "✅ Database is ready!"
+# Wait for database to be ready (skip for external databases like Railway)
+if [ "$DB_HOST" = "db" ] || [ "$DB_HOST" = "localhost" ] || [ "$DB_HOST" = "127.0.0.1" ]; then
+    echo "⏳ Waiting for local database connection..."
+    until php artisan db:show > /dev/null 2>&1; do
+        echo "Database is unavailable - sleeping"
+        sleep 2
+    done
+    echo "✅ Database is ready!"
+else
+    echo "⚡ Using external database: $DB_HOST"
+    echo "⏩ Skipping database wait check..."
+fi
 
 # Run migrations
 echo "📊 Running database migrations..."
