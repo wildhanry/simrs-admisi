@@ -6,8 +6,6 @@
 @section('content')
 <!-- Statistics Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-<!-- Statistics Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <!-- Total Patients -->
     <div class="bg-white rounded-lg shadow-sm p-6">
         <div class="flex items-center">

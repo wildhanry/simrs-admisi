@@ -14,7 +14,7 @@
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
         <aside 
-            class="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-blue-900 to-blue-800 text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0"
+            class="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-blue-900 to-blue-800 text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col"
             :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
             x-cloak>
             
@@ -37,7 +37,7 @@
             </div>
 
             <!-- Navigation -->
-            <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+            <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto pb-40">
                 <!-- Dashboard -->
                 <a href="{{ route('dashboard') }}" 
                    class="flex items-center px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('dashboard') ? 'bg-blue-700 text-white' : 'text-blue-100 hover:bg-blue-700 hover:text-white' }}">
@@ -140,16 +140,29 @@
                 @endif
             </nav>
 
-            <!-- User Info -->
-            <div class="p-4 bg-blue-950 border-t border-blue-700">
+            <!-- User Info & Logout at Bottom -->
+            <div class="absolute bottom-0 left-0 right-0 bg-blue-950 border-t border-blue-700 p-4">
                 <div class="flex items-center space-x-3">
+                    <!-- User Avatar -->
                     <div class="flex-shrink-0 w-10 h-10 bg-blue-700 rounded-full flex items-center justify-center">
                         <span class="text-lg font-bold text-white">{{ substr(auth()->user()->name, 0, 1) }}</span>
                     </div>
+                    
+                    <!-- User Info -->
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-white truncate">{{ auth()->user()->name }}</p>
                         <p class="text-xs text-blue-300">{{ ucfirst(auth()->user()->role) }}</p>
                     </div>
+                    
+                    <!-- Logout Icon -->
+                    <form method="POST" action="{{ route('logout') }}" class="flex-shrink-0">
+                        @csrf
+                        <button type="submit" class="w-10 h-10 rounded-full flex items-center justify-center text-blue-100 hover:bg-white/10 transition-colors" title="Logout">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            </svg>
+                        </button>
+                    </form>
                 </div>
             </div>
         </aside>
