@@ -2,6 +2,12 @@
 
 echo "🚀 Starting SIMRS Admisi Docker Container..."
 
+# Create required directories
+mkdir -p /var/log/supervisor
+mkdir -p /var/log/nginx
+mkdir -p /run
+mkdir -p /tmp/nginx
+
 # Wait for database to be ready (skip for external databases like Railway)
 if [ "$DB_HOST" = "db" ] || [ "$DB_HOST" = "localhost" ] || [ "$DB_HOST" = "127.0.0.1" ]; then
     echo "⏳ Waiting for local database connection..."

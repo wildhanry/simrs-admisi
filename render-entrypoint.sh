@@ -2,6 +2,16 @@
 
 echo "🚀 Starting SIMRS Admisi on Render.com..."
 
+# Create necessary directories
+echo "📁 Creating required directories..."
+mkdir -p storage/framework/cache
+mkdir -p storage/framework/sessions
+mkdir -p storage/framework/views
+mkdir -p storage/logs
+mkdir -p bootstrap/cache
+mkdir -p /tmp/nginx
+mkdir -p /var/log/nginx
+
 # Install dependencies if not present
 if [ ! -d "vendor" ]; then
     echo "📦 Installing Composer dependencies..."
@@ -19,14 +29,15 @@ if [ ! -d "public/build" ]; then
     npm run build
 fi
 
-# Create storage directories
-echo "📁 Creating storage directories..."
-mkdir -p storage/framework/cache
+# Create storage directories (ensure they exist)
+mkdir -p storage/framework/cache/data
 mkdir -p storage/framework/sessions
+mkdir -p storage/framework/testing
 mkdir -p storage/framework/views
 mkdir -p storage/logs
+mkdir -p storage/app/public
 
-# Set permissions
+# Create storage link
 echo "🔐 Setting permissions..."
 chmod -R 775 storage bootstrap/cache
 
