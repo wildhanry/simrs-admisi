@@ -3,7 +3,6 @@ vendor
 .git
 .env
 .env.backup
-.env.production
 storage/*.key
 .phpunit.result.cache
 npm-debug.log
@@ -11,12 +10,3 @@ yarn-error.log
 *.log
 .DS_Store
 Thumbs.db
-.idea
-.vscode
-/public/hot
-/public/storage
-/public/build
-/storage/logs/*
-!/storage/logs/.gitignore
-/bootstrap/cache/*
-!/bootstrap/cache/.gitkeep

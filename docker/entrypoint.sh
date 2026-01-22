@@ -1,57 +1,59 @@
 #!/bin/sh
+set -e
 
-echo "🚀 Starting SIMRS Admisi Docker Container..."
+echo "Starting Laravel application setup..."
 
-# Create required directories
-mkdir -p /var/log/supervisor
-mkdir -p /var/log/nginx
-mkdir -p /run
-mkdir -p /tmp/nginx
+# Debug: Print database connection info (tanpa password)
+echo "Database connection info:"
+echo "DB_CONNECTION: ${DB_CONNECTION}"
+echo "DB_HOST: ${DB_HOST}"
+echo "DB_PORT: ${DB_PORT}"
+echo "DB_DATABASE: ${DB_DATABASE}"
+echo "DB_USERNAME: ${DB_USERNAME}"
 
-# Wait for database to be ready (skip for external databases like Railway)
-if [ "$DB_HOST" = "db" ] || [ "$DB_HOST" = "localhost" ] || [ "$DB_HOST" = "127.0.0.1" ]; then
-    echo "⏳ Waiting for local database connection..."
-    until php artisan db:show > /dev/null 2>&1; do
-        echo "Database is unavailable - sleeping"
-        sleep 2
-    done
-    echo "✅ Database is ready!"
-else
-    echo "⚡ Using external database: $DB_HOST"
-    echo "⏩ Skipping database wait check..."
+# Test database connection with a simple query
+echo "Testing database connection..."
+max_attempts=15
+attempt=0
+until php -r "new PDO('mysql:host=${DB_HOST};port=${DB_PORT};dbname=${DB_DATABASE}', '${DB_USERNAME}', '${DB_PASSWORD}');" 2>/dev/null || [ $attempt -eq $max_attempts ]; do
+    echo "Database is unavailable - waiting (attempt $attempt/$max_attempts)"
+    sleep 2
+    attempt=$((attempt+1))
+done
+
+if [ $attempt -eq $max_attempts ]; then
+    echo "ERROR: Failed to connect to database after $max_attempts attempts"
+    echo "Please check your database credentials and connectivity"
+    exit 1
 fi
 
-# Run migrations
-echo "📊 Running database migrations..."
-php artisan migrate --force
+echo "Database connection successful!"
 
-# Seed database if RUN_SEEDER is set to true
-if [ "$RUN_SEEDER" = "true" ]; then
-    echo "🌱 Seeding database..."
-    php artisan db:seed --force
-fi
+# Clear config cache only (skip cache:clear karena table belum ada)
+php artisan config:clear
+php artisan view:clear
 
-# Clear and cache config
-echo "⚡ Optimizing application..."
+# Run migrations fresh (drop all tables first)
+echo "Running fresh migrations..."
+php artisan migrate:fresh --force --no-interaction
+
+# Now safe to clear cache (table sudah ada)
+php artisan cache:clear
+
+# Seed database if empty
+echo "Seeding database..."
+php artisan db:seed --force --no-interaction --class=UserSeeder || echo "UserSeeder skipped"
+php artisan db:seed --force --no-interaction --class=ObatSeeder || echo "ObatSeeder skipped"
+
+# Optimize for production
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Create storage link if not exists
-if [ ! -L /var/www/html/public/storage ]; then
-    echo "🔗 Creating storage symlink..."
-    php artisan storage:link
-fi
+# Create storage link
+php artisan storage:link || true
 
-# Set proper permissions
-echo "🔐 Setting permissions..."
-chown -R www-data:www-data /var/www/html/storage
-chown -R www-data:www-data /var/www/html/bootstrap/cache
-chmod -R 775 /var/www/html/storage
-chmod -R 775 /var/www/html/bootstrap/cache
+echo "Laravel application is ready!"
 
-echo "✅ Application ready!"
-
-# Start supervisor to manage nginx and php-fpm
-echo "🌐 Starting services..."
+# Start supervisor
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
