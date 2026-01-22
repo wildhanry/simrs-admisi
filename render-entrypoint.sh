@@ -65,7 +65,35 @@ echo "✅ Application ready!"
 
 # Start PHP-FPM in background
 echo "🔧 Starting PHP-FPM..."
-php-fpm -D
+
+# Try different PHP-FPM command names
+if command -v php-fpm8.3 > /dev/null 2>&1; then
+    PHP_FPM_CMD="php-fpm8.3"
+elif command -v php-fpm > /dev/null 2>&1; then
+    PHP_FPM_CMD="php-fpm"
+elif command -v php-fpm83 > /dev/null 2>&1; then
+    PHP_FPM_CMD="php-fpm83"
+else
+    echo "❌ ERROR: PHP-FPM not found!"
+    echo "Available PHP commands:"
+    ls -la /usr/local/sbin/php* || echo "No PHP binaries in /usr/local/sbin"
+    ls -la /usr/sbin/php* || echo "No PHP binaries in /usr/sbin"
+    exit 1
+fi
+
+echo "✅ Found PHP-FPM: $PHP_FPM_CMD"
+$PHP_FPM_CMD -D
+
+# Wait for PHP-FPM to be ready
+echo "⏳ Waiting for PHP-FPM to start..."
+sleep 3
+
+# Verify PHP-FPM is running
+if ! pgrep -f php-fpm > /dev/null; then
+    echo "❌ ERROR: PHP-FPM failed to start!"
+    exit 1
+fi
+echo "✅ PHP-FPM is running"
 
 # Generate nginx config with PORT variable
 echo "🌐 Configuring Nginx for port $PORT..."
@@ -99,6 +127,10 @@ http {
     gzip_types text/plain text/css text/xml text/javascript 
                application/json application/javascript application/xml+rss;
 
+    upstream php-fpm {
+        server 127.0.0.1:9000;
+    }
+
     server {
         listen ${PORT:-8000};
         server_name _;
@@ -116,10 +148,13 @@ http {
         error_page 404 /index.php;
 
         location ~ \.php$ {
-            fastcgi_pass 127.0.0.1:9000;
+            fastcgi_pass php-fpm;
             fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
             include fastcgi_params;
             fastcgi_hide_header X-Powered-By;
+            fastcgi_connect_timeout 300;
+            fastcgi_send_timeout 300;
+            fastcgi_read_timeout 300;
         }
 
         location ~ /\.(?!well-known).* {
