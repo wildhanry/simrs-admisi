@@ -53,12 +53,46 @@ Sistem Informasi Manajemen Rumah Sakit (SIMRS) untuk pengelolaan pendaftaran pas
 ## 📦 Instalasi
 
 ### Persyaratan
+
+**Metode 1: Manual Install**
 - PHP >= 8.2
 - Composer
 - Node.js >= 16
 - MySQL >= 8.0
 
-### Langkah Instalasi
+**Metode 2: Docker (Recommended)**
+- Docker Engine 20.10+
+- Docker Compose 2.0+
+
+---
+
+### 🐳 Instalasi dengan Docker (Recommended)
+
+**Quick Start:**
+```bash
+# Clone repository
+git clone https://github.com/wildhanry/simrs-admisi.git
+cd simrs-admisi
+
+# Setup environment
+cp .env.docker .env
+
+# Build dan jalankan
+docker-compose up -d
+
+# Akses aplikasi
+open http://localhost:8000
+```
+
+Aplikasi akan berjalan di:
+- **SIMRS Admisi**: http://localhost:8000
+- **phpMyAdmin**: http://localhost:8080
+
+📖 **Panduan lengkap Docker**: Lihat [DOCKER.md](DOCKER.md)
+
+---
+
+### 💻 Instalasi Manual
 
 1. **Clone repository**
 ```bash
